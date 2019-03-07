@@ -3,6 +3,9 @@
     "module": "commonjs",
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "sourceMap": true
+    "sourceMap": true,
+    // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-7.html#support-for-import-d-from-cjs-form-commonjs-modules-with---esmoduleinterop
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   }
 }

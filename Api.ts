@@ -1,4 +1,4 @@
-import * as tape from 'tape'
+import tape from 'tape'
 
 import ShotApi from './ShotApi'
 import Config from './Config'

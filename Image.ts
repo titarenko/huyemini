@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs'
 
 import { PNG } from 'pngjs'
-import * as pixelmatch from 'pixelmatch'
+import pixelmatch from 'pixelmatch'
 
 export default class Image {
   private path: string
