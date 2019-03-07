@@ -22,7 +22,14 @@
   "homepage": "https://github.com/titarenko/shtrexel#readme",
   "dependencies": {
     "pixelmatch": "^4.0.2",
+    "pngjs": "^3.3.3",
     "puppeteer": "^1.13.0",
-    "tap": "^12.5.3"
+    "tape": "^4.10.1"
+  },
+  "devDependencies": {
+    "@types/pixelmatch": "^4.0.0",
+    "@types/pngjs": "^3.3.2",
+    "@types/puppeteer": "^1.12.1",
+    "@types/tape": "^4.2.33"
   }
 }
