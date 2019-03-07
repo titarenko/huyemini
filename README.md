@@ -17,3 +17,9 @@
 * Allow to select certain shot as reference image
 * Allow to comment any shot
 * Allow to resolve any comment
+
+## Data
+
+* shots `${root}/shots/${name}/${new Date().getTime()}.png`
+* reference shots `${root}/shots/${name}/reference.png`
+* comments, acceptance date, etc `${root}/shots/${name}/metadata.json`
