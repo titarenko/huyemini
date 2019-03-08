@@ -2,13 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class Config {
     constructor(deserialized) {
-        this.basePath = deserialized.basePath;
+        this.basePath = process.cwd() + '/' + deserialized.basePath;
         this.baseUrl = deserialized.baseUrl;
         this.shotFiles = deserialized.shotFiles;
     }
     static getCurrent() {
         if (!this.current) {
-            this.current = this.fromFile('./.shtrexel.config.js');
+            this.current = this.fromFile(process.cwd() + '/.shtrexel.config.js');
         }
         return this.current;
     }

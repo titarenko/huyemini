@@ -16,30 +16,31 @@ class ShotApi {
     constructor(config, session) {
         this.config = config;
         this.session = session;
+        this.queue = Promise.resolve();
     }
     goTo(relativeUrl) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.queue = this.queue.then(() => __awaiter(this, void 0, void 0, function* () {
             const page = yield this.session.getPage();
             yield page.goto(this.config.baseUrl + relativeUrl, { waitUntil: 'networkidle0' });
-            return this;
-        });
+        }));
+        return this;
     }
     evaluate(fn, ...args) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.queue = this.queue.then(() => __awaiter(this, void 0, void 0, function* () {
             const page = yield this.session.getPage();
             yield page.evaluate(fn, ...args);
-            return this;
-        });
+        }));
+        return this;
     }
     takeScreenshot(selector) {
         return __awaiter(this, void 0, void 0, function* () {
+            yield this.queue;
             const page = yield this.session.getPage();
-            const rect = yield page.evaluate(selector => {
+            const serializedRect = yield page.evaluate(selector => {
                 const element = document.querySelector(selector);
-                return element
-                    ? element.getBoundingClientRect()
-                    : null;
+                return element && JSON.stringify(element.getBoundingClientRect());
             }, selector);
+            const rect = serializedRect && JSON.parse(serializedRect);
             if (!rect) {
                 throw new Error(`cannot get boundaries of element by selector "${selector}"`);
             }

@@ -31,7 +31,18 @@ class Image {
             if (!newPath.endsWith('.png')) {
                 newPath += '.png';
             }
-            yield fs_1.promises.rename(this.path, newPath);
+            const newDir = path_1.parse(newPath).dir;
+            yield fs_1.promises.mkdir(newDir, { recursive: true });
+            try {
+                yield fs_1.promises.rename(this.path, newPath);
+            }
+            catch (error) {
+                if (error.code !== 'EXDEV') {
+                    throw error;
+                }
+                yield fs_1.promises.copyFile(this.path, newPath);
+                yield fs_1.promises.unlink(this.path);
+            }
             this.path = newPath;
         });
     }
