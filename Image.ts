@@ -38,19 +38,9 @@ export default class Image {
       differencePng.data, differencePng.width, differencePng.height,
       { threshold: 0.1 }
     )
-    if (mismatchedPixels > 0) {
-      const time = new Date().getTime().toString()
-      const random = Math.random().toString(36).substring(2)
-      const path = `${tmpdir()}/shtrexel-difference-${time}-${random}.png`
-      return new Promise(resolve => {
-        differencePng
-          .pack()
-          .pipe(createWriteStream(path))
-          .on('close', () => resolve(new Image(path)))
-      })
-    } else {
-      return null
-    }
+    return mismatchedPixels > 0
+      ? Image.fromPng(differencePng)
+      : null
   }
 
   private load (): Promise<PNG> {
@@ -60,5 +50,27 @@ export default class Image {
         .on('error', reject)
         .on('parsed', resolve)
     })
+  }
+
+  private static fromPng (png: PNG): Promise<Image> {
+    const path = this.getRandomPath()
+    return new Promise(resolve => {
+      png
+        .pack()
+        .pipe(createWriteStream(path))
+        .on('close', () => resolve(new Image(path)))
+    })
+  }
+
+  static async fromBuffer (buffer: Buffer): Promise<Image> {
+    const path = this.getRandomPath()
+    await fs.writeFile(path, buffer)
+    return new Image(path)
+  }
+
+  private static getRandomPath (): string {
+    const time = new Date().getTime().toString()
+    const random = Math.random().toString(36).substring(2)
+    return `${tmpdir()}/shtrexel-${time}-${random}.png`
   }
 }

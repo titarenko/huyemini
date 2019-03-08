@@ -1,7 +1,8 @@
 import * as puppeteer from 'puppeteer'
 
 import Config from './Config'
-import { Session } from './Session'
+import Session from './Session'
+import Image from './Image'
 
 class ShotApi {
   private config: Config
@@ -22,6 +23,21 @@ class ShotApi {
     const page = await this.session.getPage()
     await page.evaluate(fn, ...args)
     return this
+  }
+
+  async takeScreenshot (selector: string): Promise<Image> {
+    const page = await this.session.getPage()
+    const rect: puppeteer.BoundingBox = await page.evaluate(selector => {
+      const element = document.querySelector(selector)
+      return element
+        ? element.getBoundingClientRect()
+        : null
+    }, selector)
+    if (!rect) {
+      throw new Error(`cannot get boundaries of element by selector "${selector}"`)
+    }
+    const buffer = await page.screenshot({ clip: rect })
+    return Image.fromBuffer(buffer)
   }
 }
 
