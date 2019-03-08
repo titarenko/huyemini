@@ -1,4 +1,4 @@
-import * as puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer'
 
 export default class Session {
   private browser: puppeteer.Browser
