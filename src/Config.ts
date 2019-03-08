@@ -6,14 +6,14 @@ export default class Config {
   readonly shotFiles: string
 
   private constructor (deserialized: any) {
-    this.basePath = deserialized.basePath
+    this.basePath = process.cwd() + '/' + deserialized.basePath
     this.baseUrl = deserialized.baseUrl
     this.shotFiles = deserialized.shotFiles
   }
 
   static getCurrent (): Config {
     if (!this.current) {
-      this.current = this.fromFile('./.shtrexel.config.js')
+      this.current = this.fromFile(process.cwd() + '/.shtrexel.config.js')
     }
     return this.current
   }
