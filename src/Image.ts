@@ -22,7 +22,17 @@ export default class Image {
     if (!newPath.endsWith('.png')) {
       newPath += '.png'
     }
-    await fs.rename(this.path, newPath)
+    const newDir = parsePath(newPath).dir
+    await fs.mkdir(newDir, { recursive: true })
+    try {
+      await fs.rename(this.path, newPath)
+    } catch (error) {
+      if (error.code !== 'EXDEV') {
+        throw error
+      }
+      await fs.copyFile(this.path, newPath)
+      await fs.unlink(this.path)
+    }
     this.path = newPath
   }
 
