@@ -2,8 +2,8 @@
   "name": "shtrexel",
   "version": "1.0.0",
   "description": "Screenshot based UI testing",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/Api.js",
+  "types": "dist/Api.d.ts",
   "bin": {
     "shtrexel": "./dist/run.js"
   },
