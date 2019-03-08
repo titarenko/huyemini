@@ -2,8 +2,10 @@
   "name": "shtrexel",
   "version": "1.0.0",
   "description": "todo",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -30,6 +32,7 @@
     "@types/pixelmatch": "^4.0.0",
     "@types/pngjs": "^3.3.2",
     "@types/puppeteer": "^1.12.1",
-    "@types/tape": "^4.2.33"
+    "@types/tape": "^4.2.33",
+    "typescript": "^3.3.3333"
   }
 }
