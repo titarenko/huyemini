@@ -10,11 +10,18 @@ type ShotCallback = (api: ShotApi) => Promise<Image>
 
 export function shot(subjectName: string, callback: ShotCallback): void {
   tape(subjectName, async function (t) {
+    t.plan(1)
+
     const config = Config.getCurrent()
     const repository = new Repository(config, subjectName)
-    const shot = await callback(new ShotApi(config, new Session()))
+
+    const session = new Session()
+    const shot = await callback(new ShotApi(config, session))
+    await session.close()
+
     const name = new Date().getTime().toString()
     repository.saveImage(name, shot)
+
     const reference = await repository.loadImage('reference')
     if (reference) {
       const difference = await reference.compareTo(shot)
