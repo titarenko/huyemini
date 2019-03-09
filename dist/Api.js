@@ -19,9 +19,12 @@ const Repository_1 = __importDefault(require("./Repository"));
 function shot(subjectName, callback) {
     tape_1.default(subjectName, function (t) {
         return __awaiter(this, void 0, void 0, function* () {
+            t.plan(1);
             const config = Config_1.default.getCurrent();
             const repository = new Repository_1.default(config, subjectName);
-            const shot = yield callback(new ShotApi_1.default(config, new Session_1.default()));
+            const session = new Session_1.default();
+            const shot = yield callback(new ShotApi_1.default(config, session));
+            yield session.close();
             const name = new Date().getTime().toString();
             repository.saveImage(name, shot);
             const reference = yield repository.loadImage('reference');

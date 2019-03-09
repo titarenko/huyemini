@@ -24,6 +24,15 @@ class Session {
             return this.page;
         });
     }
+    close() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.browser) {
+                return;
+            }
+            yield this.browser.close();
+            this.browser = undefined;
+        });
+    }
 }
 exports.default = Session;
 //# sourceMappingURL=Session.js.map
