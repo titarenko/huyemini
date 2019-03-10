@@ -1,8 +1,12 @@
-import * as puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer'
 
 import Config from './Config'
 import Session from './Session'
 import Image from './Image'
+
+import getBbox from './utils/getBbox'
+
+type Action = (page: puppeteer.Page) => Promise<any>
 
 class ShotApi {
   private config: Config
@@ -15,34 +19,44 @@ class ShotApi {
     this.queue = Promise.resolve()
   }
 
-  goTo (relativeUrl: string): ShotApi {
-    this.queue = this.queue.then(async () => {
-      const page = await this.session.getPage()
-      await page.goto(this.config.baseUrl + relativeUrl, { waitUntil: 'networkidle0' })
-    })
+  private enqueue (action: Action): ShotApi {
+    this.queue = this.queue.then(async () => action(await this.session.getPage()))
     return this
   }
 
-  evaluate (fn: puppeteer.EvaluateFn, ...args: puppeteer.SerializableOrJSHandle[]): ShotApi {
-    this.queue = this.queue.then(async () => {
-      const page = await this.session.getPage()
-      await page.evaluate(fn, ...args)
+  goTo (relativeUrl: string): ShotApi {
+    return this.enqueue(page => page.goto(
+      this.config.baseUrl + relativeUrl,
+      { waitUntil: 'networkidle0' }
+    ))
+  }
+
+  mouseDown (selector: string): ShotApi {
+    return this.enqueue(async page => {
+      const bbox = await getBbox(page, selector)
+      if (bbox) {
+        const x = bbox.x + bbox.width / 2
+        const y = bbox.y + bbox.height / 2
+        await page.mouse.move(x, y)
+        await page.mouse.down()
+      }
     })
-    return this
+  }
+
+  hover (selector: string): ShotApi {
+    return this.enqueue(async page => {
+      await page.hover(selector)
+    })
   }
 
   async takeScreenshot (selector: string): Promise<Image> {
     await this.queue
     const page = await this.session.getPage()
-    const serializedRect = await page.evaluate(selector => {
-      const element = document.querySelector(selector)
-      return element && JSON.stringify(element.getBoundingClientRect())
-    }, selector)
-    const rect = serializedRect && JSON.parse(serializedRect)
-    if (!rect) {
-      throw new Error(`cannot get boundaries of element by selector "${selector}"`)
+    const bbox = await getBbox(page, selector)
+    if (!bbox) {
+      throw new Error(`cannot get bbox of element by selector "${selector}"`)
     }
-    const buffer = await page.screenshot({ clip: rect })
+    const buffer = await page.screenshot({ clip: bbox })
     return Image.fromBuffer(buffer)
   }
 }
