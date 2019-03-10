@@ -12,39 +12,45 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Image_1 = __importDefault(require("./Image"));
+const getBbox_1 = __importDefault(require("./utils/getBbox"));
 class ShotApi {
     constructor(config, session) {
         this.config = config;
         this.session = session;
         this.queue = Promise.resolve();
     }
-    goTo(relativeUrl) {
-        this.queue = this.queue.then(() => __awaiter(this, void 0, void 0, function* () {
-            const page = yield this.session.getPage();
-            yield page.goto(this.config.baseUrl + relativeUrl, { waitUntil: 'networkidle0' });
-        }));
+    enqueue(action) {
+        this.queue = this.queue.then(() => __awaiter(this, void 0, void 0, function* () { return action(yield this.session.getPage()); }));
         return this;
     }
-    evaluate(fn, ...args) {
-        this.queue = this.queue.then(() => __awaiter(this, void 0, void 0, function* () {
-            const page = yield this.session.getPage();
-            yield page.evaluate(fn, ...args);
+    goTo(relativeUrl) {
+        return this.enqueue(page => page.goto(this.config.baseUrl + relativeUrl, { waitUntil: 'networkidle0' }));
+    }
+    mouseDown(selector) {
+        return this.enqueue((page) => __awaiter(this, void 0, void 0, function* () {
+            const bbox = yield getBbox_1.default(page, selector);
+            if (bbox) {
+                const x = bbox.x + bbox.width / 2;
+                const y = bbox.y + bbox.height / 2;
+                yield page.mouse.move(x, y);
+                yield page.mouse.down();
+            }
         }));
-        return this;
+    }
+    hover(selector) {
+        return this.enqueue((page) => __awaiter(this, void 0, void 0, function* () {
+            yield page.hover(selector);
+        }));
     }
     takeScreenshot(selector) {
         return __awaiter(this, void 0, void 0, function* () {
             yield this.queue;
             const page = yield this.session.getPage();
-            const serializedRect = yield page.evaluate(selector => {
-                const element = document.querySelector(selector);
-                return element && JSON.stringify(element.getBoundingClientRect());
-            }, selector);
-            const rect = serializedRect && JSON.parse(serializedRect);
-            if (!rect) {
-                throw new Error(`cannot get boundaries of element by selector "${selector}"`);
+            const bbox = yield getBbox_1.default(page, selector);
+            if (!bbox) {
+                throw new Error(`cannot get bbox of element by selector "${selector}"`);
             }
-            const buffer = yield page.screenshot({ clip: rect });
+            const buffer = yield page.screenshot({ clip: bbox });
             return Image_1.default.fromBuffer(buffer);
         });
     }
