@@ -1,2 +1,5 @@
 node_modules
+front/node_modules
+front/.DS_Store
 .vscode
+.DS_Store
